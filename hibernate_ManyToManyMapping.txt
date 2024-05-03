@@ -1,0 +1,258 @@
+
+one to one
+one to many
+many to one
+many to many
+
+Hibernate Many To Many Mapping :
+--------------------------------------------------
+
+Trainer 
+------------
+tr1 -- java,python
+tr2 -- python,reactjs
+tr3 -- reactjs,java
+
+subjects :
+-------------
+java- tr1,tr3
+python - tr1,tr2
+reactjs - tr2,tr3
+
+class Trainer 
+{
+ int tid;
+String tname;
+@ManyToMany
+List<Subject>subjects;
+}
+
+class Subject
+{
+int sid;
+String sname;
+@ManyToMany
+List<Trainer>trainers;
+
+}
+
+----------------------------------------------------------
+package com.hiberonlineclasses.HiberManyToManyLearn;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+
+public class App 
+{
+    public static void main( String[] args )
+    {
+       Trainer tr1=new Trainer();
+       Trainer tr2=new Trainer();
+       Trainer tr3=new Trainer();
+      
+       
+       List<Trainer>javaList=new ArrayList<Trainer>();
+       javaList.add(tr1);
+       javaList.add(tr3);
+       
+       List<Trainer>pythonList=new ArrayList<Trainer>();
+      pythonList.add(tr1);
+      pythonList.add(tr2);
+      
+      List<Trainer>reactList=new ArrayList<Trainer>();
+      reactList.add(tr3);
+      reactList.add(tr2);
+       
+Subject sb1=new Subject(111,"java",javaList);
+Subject sb2=new Subject(112,"python",pythonList);
+Subject sb3=new Subject(113,"react",reactList);
+       
+List<Subject>ajayList=new ArrayList<Subject>();
+  ajayList.add(sb1);
+  ajayList.add(sb2);
+  
+  List<Subject>vijayList=new ArrayList<Subject>();
+  vijayList.add(sb2);
+  vijayList.add(sb3);
+  
+  List<Subject>rahulList=new ArrayList<Subject>();
+  rahulList.add(sb3);
+  rahulList.add(sb1);
+  
+  tr1.setTid(301);
+  tr1.setTname("Ajay");
+  tr1.setSubjects(ajayList);
+  
+  tr2.setTid(302);
+  tr2.setTname("vijay");
+  tr2.setSubjects(vijayList);
+  
+  tr3.setTid(303);
+  tr3.setTname("Rahul");
+       tr3.setSubjects(rahulList);
+       
+      Configuration cfg= new Configuration();
+      cfg.configure();
+      
+      SessionFactory factory= cfg.buildSessionFactory();
+     Session sess= factory.openSession(); 
+     
+    Transaction tx= sess.beginTransaction();
+    sess.save(sb1);
+    sess.save(sb2);
+    sess.save(sb3);
+    
+    sess.save(tr1);
+    sess.save(tr2);
+    sess.save(tr3);
+    
+    tx.commit();
+    
+     
+  
+    }
+}
+
+--------------------------
+package com.hiberonlineclasses.HiberManyToManyLearn;
+
+import java.util.List;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+
+@Entity
+public class Trainer {
+	// add mysql and hibernate dependencies in pom.xml file
+	@Id
+	int tid;
+	String tname;
+	
+	@ManyToMany
+	List<Subject>subjects;
+
+	public Trainer() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public Trainer(int tid, String tname, List<Subject> subjects) {
+		super();
+		this.tid = tid;
+		this.tname = tname;
+		this.subjects = subjects;
+	}
+
+	public int getTid() {
+		return tid;
+	}
+
+	public void setTid(int tid) {
+		this.tid = tid;
+	}
+
+	public String getTname() {
+		return tname;
+	}
+
+	public void setTname(String tname) {
+		this.tname = tname;
+	}
+
+	public List<Subject> getSubjects() {
+		return subjects;
+	}
+
+	public void setSubjects(List<Subject> subjects) {
+		this.subjects = subjects;
+	}
+
+	@Override
+	public String toString() {
+		return "Trainer [tid=" + tid + ", tname=" + tname + ", subjects=" + subjects + "]";
+	}
+
+	
+}
+
+--------------------------------------------
+package com.hiberonlineclasses.HiberManyToManyLearn;
+
+import java.util.List;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+
+@Entity
+public class Subject {
+	
+	@Id
+	int sid;
+	String sname;
+	@ManyToMany
+	List<Trainer>trainers;
+	public Subject() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public Subject(int sid, String sname, List<Trainer> trainers) {
+		super();
+		this.sid = sid;
+		this.sname = sname;
+		this.trainers = trainers;
+	}
+	public int getSid() {
+		return sid;
+	}
+	public void setSid(int sid) {
+		this.sid = sid;
+	}
+	public String getSname() {
+		return sname;
+	}
+	public void setSname(String sname) {
+		this.sname = sname;
+	}
+	public List<Trainer> getTrainers() {
+		return trainers;
+	}
+	public void setTrainers(List<Trainer> trainers) {
+		this.trainers = trainers;
+	}
+	@Override
+	public String toString() {
+		return "Subject [sid=" + sid + ", sname=" + sname + ", trainers=" + trainers + "]";
+	}
+
+	
+	
+
+}
+
+--------------------------------------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.password">root</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost/hibernate</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
+       <property name="show_sql">true</property>
+       <property name="hbm2ddl.auto">create</property>
+       <mapping class="com.hiberonlineclasses.HiberManyToManyLearn.Subject"/>
+       <mapping class="com.hiberonlineclasses.HiberManyToManyLearn.Trainer"/>
+       
+    </session-factory>
+</hibernate-configuration>
+
